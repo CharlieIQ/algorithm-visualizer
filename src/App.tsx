@@ -1,0 +1,643 @@
+import React, { useState, useCallback } from 'react';
+import { FiInfo, FiClock, FiHardDrive } from 'react-icons/fi';
+import VisualArray from './components/VisualArray';
+import CodeEditor from './components/CodeEditor';
+import AlgorithmSelector from './components/AlgorithmSelector';
+import { ArrayElement, SortingStep, AlgorithmPreset } from './types';
+import { ALGORITHM_PRESETS } from './data/presets';
+import { SortingAlgorithms } from './utils/sortingAlgorithms';
+import { InstrumentedArray } from './utils/codeInstrumentation';
+
+/**
+ * This is the main App component for the Algorithm Visualizer application.
+ * @returns The main App component for the Algorithm Visualizer application.
+ */
+function App() {
+    // State for the array elements
+    const [arrayElements, setArrayElements] = useState<ArrayElement[]>([]);
+    // State for is playing
+    const [isPlaying, setIsPlaying] = useState(false);
+    // State for current step index in the sorting steps
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    // State for the sorting steps
+    const [sortingSteps, setSortingSteps] = useState<SortingStep[]>([]);
+    // State for the selected algorithm
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
+    // State for playback speed (in ms)
+    const [playbackSpeed, setPlaybackSpeed] = useState(500);
+    // Modal states
+    const [showCodeModal, setShowCodeModal] = useState(false);
+    const [showHowToUse, setShowHowToUse] = useState(false);
+    const [showAlgorithmInfo, setShowAlgorithmInfo] = useState(false);
+    const [currentAlgorithmCode, setCurrentAlgorithmCode] = useState('');
+    const [currentAlgorithmInfo, setCurrentAlgorithmInfo] = useState<AlgorithmPreset | null>(null);
+    const [currentStepDescription, setCurrentStepDescription] = useState('');
+
+    // Initialize with random array
+    React.useEffect(() => {
+        generateRandomArray();
+    }, []);
+
+    /**
+     * Generates a new random array and resets the visualization state.
+     */
+    const generateRandomArray = useCallback(() => {
+        const newArray: ArrayElement[] = [];
+        const arraySize = 15;
+
+        for (let i = 0; i < arraySize; i++) {
+            newArray.push({
+                value: Math.floor(Math.random() * 80) + 5,
+                id: `element-${i}`,
+                state: 'default'
+            });
+        }
+        
+        setArrayElements(newArray);
+        setSortingSteps([]);
+        setCurrentStepIndex(0);
+        setCurrentStepDescription('');
+        setIsPlaying(false);
+    }, []);
+
+    /**
+     * Handles changes to individual array elements when edited.
+     * @param index - The index of the element being changed.
+     * @param newValue - The new value for the element.
+     */
+    const handleElementChange = useCallback((index: number, newValue: number) => {
+        setArrayElements(prev =>
+            prev.map((el, i) =>
+                i === index ? { ...el, value: newValue } : el
+            )
+        );
+    }, []);
+
+    /**
+     * Handles selection of a sorting algorithm from the sidebar.
+     * @param algorithmId - The ID of the selected algorithm.
+     */
+    const handleSelectAlgorithm = useCallback((algorithmId: string) => {
+        setSelectedAlgorithm(algorithmId);
+
+        // Generate sorting steps
+        const resetArray = arrayElements.map(el => ({ ...el, state: 'default' as const }));
+        let steps: SortingStep[] = [];
+        // Switrch statement to select algorithm
+        switch (algorithmId) {
+            case 'bubble-sort':
+                steps = SortingAlgorithms.bubbleSort(resetArray);
+                break;
+            case 'selection-sort':
+                steps = SortingAlgorithms.selectionSort(resetArray);
+                break;
+            case 'insertion-sort':
+                steps = SortingAlgorithms.insertionSort(resetArray);
+                break;
+            case 'quick-sort':
+                steps = SortingAlgorithms.quickSort(resetArray);
+                break;
+            case 'merge-sort':
+                steps = SortingAlgorithms.mergeSort(resetArray);
+                break;
+            case 'heap-sort':
+                steps = SortingAlgorithms.heapSort(resetArray);
+                break;
+            case 'shell-sort':
+                steps = SortingAlgorithms.shellSort(resetArray);
+                break;
+            case 'comb-sort':
+                steps = SortingAlgorithms.combSort(resetArray);
+                break;
+            case 'cocktail-sort':
+                steps = SortingAlgorithms.cocktailSort(resetArray);
+                break;
+            case 'gnome-sort':
+                steps = SortingAlgorithms.gnomeSort(resetArray);
+                break;
+            case 'pancake-sort':
+                steps = SortingAlgorithms.pancakeSort(resetArray);
+                break;
+            case 'bogo-sort':
+                steps = SortingAlgorithms.bogoSort(resetArray);
+                break;
+            default:
+                return;
+        }
+
+        setSortingSteps(steps);
+        setCurrentStepIndex(0);
+        setArrayElements(resetArray);
+        setCurrentStepDescription(steps[0]?.description || '');
+    }, [arrayElements]);
+
+    /**
+     * Plays the sorting animation from the current step.
+     */
+    const playAnimation = useCallback(() => {
+        if (sortingSteps.length === 0 || isPlaying) return;
+
+        setIsPlaying(true);
+        let stepIndex = currentStepIndex;
+
+        const interval = setInterval(() => {
+            if (stepIndex >= sortingSteps.length - 1) {
+                setIsPlaying(false);
+                clearInterval(interval);
+                return;
+            }
+
+            stepIndex++;
+            const step = sortingSteps[stepIndex];
+            setArrayElements([...step.array]);
+            setCurrentStepIndex(stepIndex);
+            setCurrentStepDescription(step.description);
+        }, playbackSpeed);
+    }, [sortingSteps, currentStepIndex, isPlaying, playbackSpeed]);
+
+    const pauseAnimation = useCallback(() => {
+        setIsPlaying(false);
+    }, []);
+
+    const resetAnimation = useCallback(() => {
+        setIsPlaying(false);
+        setCurrentStepIndex(0);
+        if (sortingSteps.length > 0) {
+            setArrayElements([...sortingSteps[0].array]);
+            setCurrentStepDescription(sortingSteps[0].description);
+        }
+    }, [sortingSteps]);
+
+    const stepForward = useCallback(() => {
+        if (currentStepIndex < sortingSteps.length - 1) {
+            const nextIndex = currentStepIndex + 1;
+            const step = sortingSteps[nextIndex];
+            setArrayElements([...step.array]);
+            setCurrentStepIndex(nextIndex);
+            setCurrentStepDescription(step.description);
+        }
+    }, [currentStepIndex, sortingSteps]);
+
+    const stepBackward = useCallback(() => {
+        if (currentStepIndex > 0) {
+            const prevIndex = currentStepIndex - 1;
+            const step = sortingSteps[prevIndex];
+            setArrayElements([...step.array]);
+            setCurrentStepIndex(prevIndex);
+            setCurrentStepDescription(step.description);
+        }
+    }, [currentStepIndex, sortingSteps]);
+
+    const handleShowCode = useCallback((algorithm: AlgorithmPreset) => {
+        setCurrentAlgorithmCode(algorithm.algorithm.code);
+        setShowCodeModal(true);
+    }, []);
+
+    const handleShowInfo = useCallback((algorithm: AlgorithmPreset) => {
+        setCurrentAlgorithmInfo(algorithm);
+        setShowAlgorithmInfo(true);
+    }, []);
+
+    /**
+     * Handles running custom user-provided code from the CodeEditor.
+     * @param code - The user-provided code to execute.
+     * @param useVisualization - Whether to run with visualization or just sort directly.
+     */
+    const handleRunCustomCode = useCallback(async (code: string, useVisualization: boolean = false) => {
+        try {
+            if (useVisualization) {
+                // Create instrumented array for step-by-step visualization
+                const instrumentedArray = new InstrumentedArray(arrayElements);
+
+                // Create a safe evaluation environment with instrumented array
+                const func = new Function('instrumentedArray', `
+          ${code}
+          return customSort(instrumentedArray);
+        `);
+
+                const result = func(instrumentedArray);
+                const steps = result.getSteps();
+
+                // Set up visualization
+                setSortingSteps(steps);
+                setCurrentStepIndex(0);
+                setArrayElements([...steps[0].array]);
+                setCurrentStepDescription(steps[0]?.description || 'Custom algorithm started');
+                setSelectedAlgorithm('custom-visual');
+
+            } else {
+                // Simple execution without visualization
+                const func = new Function('arr', `
+          ${code}
+          return customSort([...arr]);
+        `);
+
+                const sortedArray = func(arrayElements.map(el => el.value));
+
+                // Update the array with sorted values
+                const newArray = arrayElements.map((el, index) => ({
+                    ...el,
+                    value: sortedArray[index] || el.value,
+                    state: 'sorted' as const
+                }));
+
+                setArrayElements(newArray);
+                setSortingSteps([]);
+                setCurrentStepDescription('Custom algorithm executed successfully!');
+                setSelectedAlgorithm(null);
+            }
+
+        } catch (error) {
+            console.error('Error running custom code:', error);
+            setCurrentStepDescription(`Error: ${error instanceof Error ? error.message : 'Invalid code or runtime error'}`);
+            setSortingSteps([]);
+            setSelectedAlgorithm(null);
+        }
+    }, [arrayElements]);
+
+    return (
+        <div className="min-h-screen bg-dark-900">
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-white mb-2">
+                        Algorithm Visualizer
+                    </h1>
+                    <p className="text-dark-300">
+                        Visualize sorting algorithms with interactive animations
+                    </p>
+                </div>
+
+                {/* Main Content */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Visual Array - Takes up 2 columns on extra large screens */}
+                    <div className="xl:col-span-2 space-y-6 min-w-0">
+                        {/* Array Visualization */}
+                        <div className="bg-dark-800 rounded-lg shadow-lg p-4 border border-dark-700 w-full">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-white">Array Visualization</h2>
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={generateRandomArray}
+                                        className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors duration-200 font-medium"
+                                    >
+                                        Generate Random
+                                    </button>
+                                    <button
+                                        onClick={() => setShowHowToUse(true)}
+                                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                                    >
+                                        How to Use
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="w-full overflow-x-auto">
+                                <VisualArray
+                                    elements={arrayElements}
+                                    onElementChange={handleElementChange}
+                                    editable={true}
+                                />
+                            </div>
+
+                            {/* Current Step Description */}
+                            {currentStepDescription && (
+                                <div className="mt-4 p-3 bg-primary-900 bg-opacity-50 rounded-lg border border-primary-800">
+                                    <p className="text-sm text-primary-200">{currentStepDescription}</p>
+                                    <div className="text-xs text-primary-300 mt-1">
+                                        Step {currentStepIndex + 1} of {sortingSteps.length}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Controls */}
+                        <div className="bg-dark-800 rounded-lg shadow-lg p-4 border border-dark-700 w-full">
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={playAnimation}
+                                        disabled={isPlaying || sortingSteps.length === 0}
+                                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-dark-600"
+                                    >
+                                        {isPlaying ? 'Playing...' : 'Play'}
+                                    </button>
+                                    <button
+                                        onClick={pauseAnimation}
+                                        disabled={!isPlaying}
+                                        className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Pause
+                                    </button>
+                                    <button
+                                        onClick={resetAnimation}
+                                        disabled={isPlaying || sortingSteps.length === 0}
+                                        className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Reset
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={stepBackward}
+                                        disabled={isPlaying || currentStepIndex === 0}
+                                        className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                    >
+                                        ← Step
+                                    </button>
+                                    <button
+                                        onClick={stepForward}
+                                        disabled={isPlaying || currentStepIndex >= sortingSteps.length - 1}
+                                        className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                    >
+                                        Step →
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <label className="text-sm text-dark-300">Speed:</label>
+                                    <select
+                                        value={playbackSpeed}
+                                        onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                                        className="border border-dark-600 rounded px-2 py-1 text-sm bg-dark-700 text-white"
+                                    >
+                                        <option value={1000}>Slow</option>
+                                        <option value={500}>Normal</option>
+                                        <option value={250}>Fast</option>
+                                        <option value={100}>Very Fast</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Code Editor */}
+                        <div className="bg-dark-800 rounded-lg shadow-lg p-4 border border-dark-700 w-full">
+                            <h2 className="text-xl font-semibold text-white mb-4">Custom Algorithm</h2>
+                            <CodeEditor onRunCode={handleRunCustomCode} />
+                        </div>
+                    </div>
+
+                    {/* Sidebar - Algorithm Selector */}
+                    <div className="xl:col-span-1 min-w-0">
+                        <div className="bg-dark-800 rounded-lg shadow-lg p-4 border border-dark-700 h-fit sticky top-4">
+                            <AlgorithmSelector
+                                presets={ALGORITHM_PRESETS}
+                                selectedAlgorithm={selectedAlgorithm}
+                                onSelectAlgorithm={handleSelectAlgorithm}
+                                onShowCode={handleShowCode}
+                                onShowInfo={handleShowInfo}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Algorithm Info Modal */}
+                {showAlgorithmInfo && currentAlgorithmInfo && (
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                        <div className="bg-dark-800 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden border border-dark-700">
+                            <div className="flex items-center justify-between p-4 border-b border-dark-700">
+                                <div className="flex items-center space-x-2">
+                                    <FiInfo className="text-blue-400" size={20} />
+                                    <h3 className="text-lg font-semibold text-white">{currentAlgorithmInfo.algorithm.name} - Algorithm Info</h3>
+                                </div>
+                                <button
+                                    onClick={() => setShowAlgorithmInfo(false)}
+                                    className="text-dark-400 hover:text-white transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <div className="p-6 overflow-auto max-h-[60vh] text-dark-200">
+                                <div className="space-y-4">
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">Description</h4>
+                                        <p className="text-dark-200 leading-relaxed">{currentAlgorithmInfo.algorithm.description}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-semibold text-white mb-2">Time Complexity</h4>
+                                            <div className="flex items-center space-x-2">
+                                                <FiClock className="text-accent-400" size={16} />
+                                                <code className="bg-dark-900 px-2 py-1 rounded text-sm text-green-400">
+                                                    {currentAlgorithmInfo.algorithm.timeComplexity}
+                                                </code>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-white mb-2">Space Complexity</h4>
+                                            <div className="flex items-center space-x-2">
+                                                <FiHardDrive className="text-primary-400" size={16} />
+                                                <code className="bg-dark-900 px-2 py-1 rounded text-sm text-blue-400">
+                                                    {currentAlgorithmInfo.algorithm.spaceComplexity}
+                                                </code>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">Algorithm Details</h4>
+                                        <div className="bg-dark-700 p-4 rounded-lg">
+                                            {currentAlgorithmInfo.id === 'bubble-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Compares adjacent elements and swaps them if they're in wrong order</li>
+                                                    <li>• Repeats until no more swaps are needed</li>
+                                                    <li>• Simple but inefficient for large datasets</li>
+                                                    <li>• Stable sorting algorithm</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'selection-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Finds the minimum element and places it at the beginning</li>
+                                                    <li>• Repeats for the remaining unsorted portion</li>
+                                                    <li>• Makes fewer swaps than bubble sort</li>
+                                                    <li>• Not stable but in-place</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'insertion-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Builds sorted array one element at a time</li>
+                                                    <li>• Inserts each element into its correct position</li>
+                                                    <li>• Efficient for small datasets</li>
+                                                    <li>• Stable and adaptive (fast on nearly sorted data)</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'quick-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Divides array using a pivot element</li>
+                                                    <li>• Recursively sorts elements smaller and larger than pivot</li>
+                                                    <li>• Average case is very efficient</li>
+                                                    <li>• Worst case occurs with poor pivot selection</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'merge-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Divides array into halves until single elements</li>
+                                                    <li>• Merges sorted halves back together</li>
+                                                    <li>• Guaranteed O(n log n) performance</li>
+                                                    <li>• Stable but requires additional memory</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'heap-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Builds a max heap from the array</li>
+                                                    <li>• Repeatedly extracts the maximum element</li>
+                                                    <li>• Consistent O(n log n) performance</li>
+                                                    <li>• In-place but not stable</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'shell-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Generalization of insertion sort with gap sequence</li>
+                                                    <li>• Allows elements to move large distances quickly</li>
+                                                    <li>• Performance depends on gap sequence used</li>
+                                                    <li>• In-place but not stable</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'comb-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Improvement over bubble sort with gap sequence</li>
+                                                    <li>• Eliminates "turtles" (small values at end)</li>
+                                                    <li>• Uses shrink factor of 1.3</li>
+                                                    <li>• Simple to implement and understand</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'cocktail-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Bidirectional version of bubble sort</li>
+                                                    <li>• Sorts in both directions on each pass</li>
+                                                    <li>• Slightly better than bubble sort</li>
+                                                    <li>• Still O(n²) in worst case</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'gnome-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Similar to insertion sort but conceptually simpler</li>
+                                                    <li>• Works like sorting a line of flower pots</li>
+                                                    <li>• Only looks at one pair at a time</li>
+                                                    <li>• Easy to understand and implement</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'pancake-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Only allowed operation is "flipping" a prefix</li>
+                                                    <li>• Like flipping a stack of pancakes with a spatula</li>
+                                                    <li>• Interesting theoretical problem</li>
+                                                    <li>• Not practical but educational</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'bogo-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Randomly shuffles array until it becomes sorted</li>
+                                                    <li>• Worst algorithm possible - purely for fun!</li>
+                                                    <li>• Expected time is factorial complexity</li>
+                                                    <li>• Never use this in real applications!</li>
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-4 pt-2">
+                                        <button
+                                            onClick={() => {
+                                                setShowAlgorithmInfo(false);
+                                                handleSelectAlgorithm(currentAlgorithmInfo.id);
+                                            }}
+                                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors font-medium"
+                                        >
+                                            Try This Algorithm
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowAlgorithmInfo(false);
+                                                handleShowCode(currentAlgorithmInfo);
+                                            }}
+                                            className="px-4 py-2 bg-dark-600 hover:bg-dark-500 text-white rounded-lg transition-colors font-medium"
+                                        >
+                                            View Code
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* How to Use Modal */}
+                {showHowToUse && (
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                        <div className="bg-dark-800 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden border border-dark-700">
+                            <div className="flex items-center justify-between p-4 border-b border-dark-700">
+                                <h3 className="text-lg font-semibold text-white">How to Use Algorithm Visualizer</h3>
+                                <button
+                                    onClick={() => setShowHowToUse(false)}
+                                    className="text-dark-400 hover:text-white transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <div className="p-6 overflow-auto max-h-[60vh] text-dark-200">
+                                <div className="space-y-4">
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">1. Generate or Edit Array</h4>
+                                        <p>Click "Generate Random" to create a new array, or edit values directly in the visualization.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">2. Select an Algorithm</h4>
+                                        <p>Choose from Bubble Sort, Quick Sort, or Merge Sort in the sidebar. Each shows complexity info.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">3. Control the Animation</h4>
+                                        <p>Use Play/Pause buttons, or step through manually. Adjust speed from Slow to Very Fast.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">4. Understand the Colors</h4>
+                                        <ul className="list-disc list-inside ml-4 space-y-1">
+                                            <li><span className="text-blue-400">Blue:</span> Default elements</li>
+                                            <li><span className="text-yellow-400">Yellow:</span> Being compared</li>
+                                            <li><span className="text-red-400">Red:</span> Being swapped</li>
+                                            <li><span className="text-green-400">Green:</span> Sorted position</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">5. Write Custom Algorithms</h4>
+                                        <p>Use the code editor to write your own sorting function. Click "Insert Template" for a starting point.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-white mb-2">6. View Algorithm Code</h4>
+                                        <p>Click "View Code" on any preset to see the implementation in JavaScript.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Code Modal */}
+                {showCodeModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                        <div className="bg-dark-800 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden border border-dark-700">
+                            <div className="flex items-center justify-between p-4 border-b border-dark-700">
+                                <h3 className="text-lg font-semibold text-white">Algorithm Code</h3>
+                                <button
+                                    onClick={() => setShowCodeModal(false)}
+                                    className="text-dark-400 hover:text-white transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <div className="p-4 overflow-auto max-h-[60vh]">
+                                <pre className="bg-dark-900 rounded p-4 text-sm overflow-x-auto text-dark-200 border border-dark-700">
+                                    <code>{currentAlgorithmCode}</code>
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default App;
