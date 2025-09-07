@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { FiInfo, FiClock, FiHardDrive } from 'react-icons/fi';
 import VisualArray from './components/VisualArray';
 import CodeEditor from './components/CodeEditor';
@@ -33,15 +33,33 @@ function App() {
     const [currentAlgorithmInfo, setCurrentAlgorithmInfo] = useState<AlgorithmPreset | null>(null);
     const [currentStepDescription, setCurrentStepDescription] = useState('');
 
+    // Ref to store the animation interval
+    const animationIntervalRef = useRef<number | null>(null);
+
     // Initialize with random array
     React.useEffect(() => {
         generateRandomArray();
+    }, []);
+
+    // Cleanup animation interval on unmount
+    React.useEffect(() => {
+        return () => {
+            if (animationIntervalRef.current) {
+                clearInterval(animationIntervalRef.current);
+            }
+        };
     }, []);
 
     /**
      * Generates a new random array and resets the visualization state.
      */
     const generateRandomArray = useCallback(() => {
+        // Clear any running animation first
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+        }
+        
         const newArray: ArrayElement[] = [];
         const arraySize = 15;
 
@@ -78,6 +96,12 @@ function App() {
      * @param algorithmId - The ID of the selected algorithm.
      */
     const handleSelectAlgorithm = useCallback((algorithmId: string) => {
+        // Clear any running animation first
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+        }
+        setIsPlaying(false);
         setSelectedAlgorithm(algorithmId);
 
         // Generate sorting steps
@@ -144,6 +168,7 @@ function App() {
             if (stepIndex >= sortingSteps.length - 1) {
                 setIsPlaying(false);
                 clearInterval(interval);
+                animationIntervalRef.current = null;
                 return;
             }
 
@@ -153,13 +178,30 @@ function App() {
             setCurrentStepIndex(stepIndex);
             setCurrentStepDescription(step.description);
         }, playbackSpeed);
+
+        animationIntervalRef.current = interval;
     }, [sortingSteps, currentStepIndex, isPlaying, playbackSpeed]);
 
+    /**
+     * Pauses the sorting animation
+     */
     const pauseAnimation = useCallback(() => {
         setIsPlaying(false);
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+        }
     }, []);
 
+    /**
+     * Resets the animation to the initial state.
+     */
     const resetAnimation = useCallback(() => {
+        // Clear any running animation first
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+        }
         setIsPlaying(false);
         setCurrentStepIndex(0);
         if (sortingSteps.length > 0) {
@@ -168,7 +210,17 @@ function App() {
         }
     }, [sortingSteps]);
 
+    /**
+     * Steps forward one step in the sorting animation.
+     */
     const stepForward = useCallback(() => {
+        // Clear any running animation first
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+            setIsPlaying(false);
+        }
+        
         if (currentStepIndex < sortingSteps.length - 1) {
             const nextIndex = currentStepIndex + 1;
             const step = sortingSteps[nextIndex];
@@ -178,7 +230,17 @@ function App() {
         }
     }, [currentStepIndex, sortingSteps]);
 
+    /**
+     * Steps backward one step in the sorting animation.
+     */
     const stepBackward = useCallback(() => {
+        // Clear any running animation first
+        if (animationIntervalRef.current) {
+            clearInterval(animationIntervalRef.current);
+            animationIntervalRef.current = null;
+            setIsPlaying(false);
+        }
+        
         if (currentStepIndex > 0) {
             const prevIndex = currentStepIndex - 1;
             const step = sortingSteps[prevIndex];
@@ -188,11 +250,17 @@ function App() {
         }
     }, [currentStepIndex, sortingSteps]);
 
+    /**
+     * Handles showing the code modal for a selected algorithm.
+     */
     const handleShowCode = useCallback((algorithm: AlgorithmPreset) => {
         setCurrentAlgorithmCode(algorithm.algorithm.code);
         setShowCodeModal(true);
     }, []);
 
+    /**
+     * Handles showing the info modal for a selected algorithm.
+     */
     const handleShowInfo = useCallback((algorithm: AlgorithmPreset) => {
         setCurrentAlgorithmInfo(algorithm);
         setShowAlgorithmInfo(true);
@@ -275,7 +343,7 @@ function App() {
                         {/* Array Visualization */}
                         <div className="bg-dark-800 rounded-lg shadow-lg p-4 border border-dark-700 w-full">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-semibold text-white">Array Visualization</h2>
+                                <h2 className="text-xl font-semibold text-white">Array Visualization: {selectedAlgorithm ? ALGORITHM_PRESETS.find(a => a.id === selectedAlgorithm)?.algorithm.name : 'Select an Algorithm'}</h2>
                                 <div className="flex items-center space-x-2">
                                     <button
                                         onClick={generateRandomArray}
@@ -341,14 +409,14 @@ function App() {
                                 <div className="flex items-center space-x-2">
                                     <button
                                         onClick={stepBackward}
-                                        disabled={isPlaying || currentStepIndex === 0}
+                                        disabled={currentStepIndex === 0 || sortingSteps.length === 0}
                                         className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                                     >
                                         ← Step
                                     </button>
                                     <button
                                         onClick={stepForward}
-                                        disabled={isPlaying || currentStepIndex >= sortingSteps.length - 1}
+                                        disabled={currentStepIndex >= sortingSteps.length - 1 || sortingSteps.length === 0}
                                         className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                                     >
                                         Step →
