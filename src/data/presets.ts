@@ -1,4 +1,4 @@
-import { AlgorithmPreset } from '../types';
+import { AlgorithmPreset } from '../algorithms';
 
 /**
  * Predefined algorithm presets with code snippets and metadata.
@@ -438,6 +438,275 @@ function heapify(arr, n, i) {
   }
   
   return arr;
+}`,
+      steps: []
+    }
+  },
+
+  // ===== USEFUL ALGORITHMS =====
+  {
+    id: 'tim-sort',
+    name: 'Tim Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Tim Sort',
+      description: 'Hybrid stable sort combining merge sort and insertion sort, used in Python and Java.',
+      timeComplexity: 'O(n log n) worst, O(n) best',
+      spaceComplexity: 'O(n)',
+      code: `function timSort(arr) {
+  const MIN_MERGE = 32;
+  const n = arr.length;
+  
+  // Sort individual subarrays using insertion sort
+  for (let i = 0; i < n; i += MIN_MERGE) {
+    const right = Math.min(i + MIN_MERGE - 1, n - 1);
+    insertionSort(arr, i, right);
+  }
+  
+  // Start merging from size MIN_MERGE
+  let size = MIN_MERGE;
+  while (size < n) {
+    for (let start = 0; start < n; start += size * 2) {
+      const mid = start + size - 1;
+      const end = Math.min(start + size * 2 - 1, n - 1);
+      if (mid < end) {
+        merge(arr, start, mid, end);
+      }
+    }
+    size *= 2;
+  }
+  
+  return arr;
+}`,
+      steps: []
+    }
+  },
+  {
+    id: 'counting-sort',
+    name: 'Counting Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Counting Sort',
+      description: 'Non-comparison sort that counts occurrences of each distinct element.',
+      timeComplexity: 'O(n + k) where k is range',
+      spaceComplexity: 'O(k)',
+      code: `function countingSort(arr) {
+  const max = Math.max(...arr);
+  const min = Math.min(...arr);
+  const range = max - min + 1;
+  const count = new Array(range).fill(0);
+  const output = new Array(arr.length);
+  
+  // Count occurrences
+  for (let i = 0; i < arr.length; i++) {
+    count[arr[i] - min]++;
+  }
+  
+  // Transform count array
+  for (let i = 1; i < range; i++) {
+    count[i] += count[i - 1];
+  }
+  
+  // Build output array
+  for (let i = arr.length - 1; i >= 0; i--) {
+    output[count[arr[i] - min] - 1] = arr[i];
+    count[arr[i] - min]--;
+  }
+  
+  return output;
+}`,
+      steps: []
+    }
+  },
+  {
+    id: 'radix-sort',
+    name: 'Radix Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Radix Sort',
+      description: 'Non-comparison sort that sorts by individual digits from least to most significant.',
+      timeComplexity: 'O(d × (n + k)) where d is digits',
+      spaceComplexity: 'O(n + k)',
+      code: `function radixSort(arr) {
+  const max = Math.max(...arr);
+  
+  for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+    countingSortByDigit(arr, exp);
+  }
+  
+  return arr;
+}
+
+function countingSortByDigit(arr, exp) {
+  const n = arr.length;
+  const output = new Array(n);
+  const count = new Array(10).fill(0);
+  
+  // Count occurrences of digits
+  for (let i = 0; i < n; i++) {
+    count[Math.floor(arr[i] / exp) % 10]++;
+  }
+  
+  // Transform count array
+  for (let i = 1; i < 10; i++) {
+    count[i] += count[i - 1];
+  }
+  
+  // Build output array
+  for (let i = n - 1; i >= 0; i--) {
+    const digit = Math.floor(arr[i] / exp) % 10;
+    output[count[digit] - 1] = arr[i];
+    count[digit]--;
+  }
+  
+  // Copy back
+  for (let i = 0; i < n; i++) {
+    arr[i] = output[i];
+  }
+}`,
+      steps: []
+    }
+  },
+  {
+    id: 'bucket-sort',
+    name: 'Bucket Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Bucket Sort',
+      description: 'Distributes elements into buckets, sorts each bucket, then concatenates.',
+      timeComplexity: 'O(n + k) avg, O(n²) worst',
+      spaceComplexity: 'O(n + k)',
+      code: `function bucketSort(arr) {
+  if (arr.length <= 1) return arr;
+  
+  const max = Math.max(...arr);
+  const min = Math.min(...arr);
+  const bucketCount = Math.floor(Math.sqrt(arr.length));
+  const bucketSize = (max - min + 1) / bucketCount;
+  
+  // Create buckets
+  const buckets = Array(bucketCount).fill().map(() => []);
+  
+  // Distribute elements
+  for (let i = 0; i < arr.length; i++) {
+    const bucketIndex = Math.min(
+      Math.floor((arr[i] - min) / bucketSize), 
+      bucketCount - 1
+    );
+    buckets[bucketIndex].push(arr[i]);
+  }
+  
+  // Sort each bucket and concatenate
+  let index = 0;
+  for (let i = 0; i < bucketCount; i++) {
+    buckets[i].sort((a, b) => a - b);
+    for (let j = 0; j < buckets[i].length; j++) {
+      arr[index++] = buckets[i][j];
+    }
+  }
+  
+  return arr;
+}`,
+      steps: []
+    }
+  },
+
+  // ===== FUNNY ALGORITHMS =====
+  {
+    id: 'miracle-sort',
+    name: 'Miracle Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Miracle Sort',
+      description: 'Check if array is sorted, if not, wait for a miracle to occur!',
+      timeComplexity: 'O(n) best, O(∞) worst',
+      spaceComplexity: 'O(1)',
+      code: `function miracleSort(arr) {
+  function isSorted() {
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i] < arr[i - 1]) return false;
+    }
+    return true;
+  }
+  
+  if (isSorted()) {
+    console.log("Miracle! Array is sorted!");
+    return arr;
+  }
+  
+  console.log("Array is not sorted. Waiting for a miracle...");
+  // In theory, we wait forever for cosmic rays to 
+  // flip bits in memory to sort the array
+  while (!isSorted()) {
+    // Wait for miracle...
+    // (In practice, this would run forever)
+  }
+  
+  return arr;
+}`,
+      steps: []
+    }
+  },
+  {
+    id: 'sleep-sort',
+    name: 'Sleep Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Sleep Sort',
+      description: 'Each element sleeps for a time proportional to its value, creating sorted output!',
+      timeComplexity: 'O(max(arr)) time complexity',
+      spaceComplexity: 'O(n)',
+      code: `function sleepSort(arr) {
+  const result = [];
+  const promises = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    promises.push(
+      new Promise(resolve => {
+        setTimeout(() => {
+          result.push(arr[i]);
+          resolve(arr[i]);
+        }, arr[i]);
+      })
+    );
+  }
+  
+  // Wait for all elements to "wake up"
+  return Promise.all(promises).then(() => result);
+}
+
+// Usage (async):
+// const sorted = await sleepSort([3, 1, 4, 1, 5]);`,
+      steps: []
+    }
+  },
+  {
+    id: 'quantum-bogo-sort',
+    name: 'Quantum Bogo Sort',
+    category: 'sorting',
+    algorithm: {
+      name: 'Quantum Bogo Sort',
+      description: 'Uses quantum superposition to check all permutations simultaneously!',
+      timeComplexity: 'O(1) with quantum computer',
+      spaceComplexity: 'O(1)',
+      code: `function quantumBogoSort(arr) {
+  // Step 1: Create quantum superposition of all permutations
+  const superposition = createQuantumSuperposition(arr);
+  
+  // Step 2: Apply sorting oracle to identify sorted permutation
+  const sortedState = applySortingOracle(superposition);
+  
+  // Step 3: Measure the quantum state to collapse into solution
+  const result = measureQuantumState(sortedState);
+  
+  return result;
+}
+
+// Note: Requires quantum computer with O(n!) qubits
+// Current implementation limited by classical hardware constraints
+function createQuantumSuperposition(arr) {
+  // In reality, this would require a quantum computer
+  return arr.sort((a, b) => a - b); // Classical fallback
 }`,
       steps: []
     }

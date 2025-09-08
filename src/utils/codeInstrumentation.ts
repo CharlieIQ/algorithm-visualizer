@@ -1,4 +1,4 @@
-import { ArrayElement, SortingStep } from '../types';
+import { ArrayElement, SortingStep } from '../algorithms';
 
 /**
  * Class that wraps an array and instruments it for visualization.
@@ -20,8 +20,14 @@ export class InstrumentedArray {
     private steps: SortingStep[] = [];
     private stepDescription: string = '';
 
+    /**
+     * The constructor initializes the instrumented array with the given initial values.
+     * @param initialArray - The initial array of numbers to be instrumented
+     */
     constructor(initialArray: ArrayElement[]) {
+        // Initialize the array with default states
         this.array = [...initialArray.map(el => ({ ...el, state: 'default' as const }))];
+        // Record the initial state as the first step
         this.steps.push({
             array: [...this.array],
             description: 'Starting custom algorithm'
@@ -35,6 +41,7 @@ export class InstrumentedArray {
 
     // Get element by index
     get(index: number): number {
+        // Bounds check
         if (index < 0 || index >= this.array.length) {
             throw new Error(`Index ${index} out of bounds`);
         }
@@ -46,6 +53,7 @@ export class InstrumentedArray {
         if (index < 0 || index >= this.array.length) {
             throw new Error(`Index ${index} out of bounds`);
         }
+        // Update value and record step
         this.array[index].value = value;
         this.addStep(`Set element at index ${index} to ${value}`);
     }
@@ -55,7 +63,7 @@ export class InstrumentedArray {
         return this.array.length;
     }
 
-    // Compare two elements (adds visualization step)
+    // Compare two elements
     compare(i: number, j: number): number {
         if (i < 0 || i >= this.array.length || j < 0 || j >= this.array.length) {
             throw new Error(`Invalid indices: ${i}, ${j}`);

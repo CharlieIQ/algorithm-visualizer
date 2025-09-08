@@ -109,8 +109,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             onClick={() => handleRunCode()}
             disabled={isRunning || !code.trim()}
             className={`px-4 py-1 text-xs font-medium rounded transition-colors ${isRunning || !code.trim()
-                ? 'bg-dark-600 text-dark-400 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700 text-white'
+              ? 'bg-dark-600 text-dark-400 cursor-not-allowed'
+              : 'bg-primary-600 hover:bg-primary-700 text-white'
               }`}
           >
             {isRunning ? 'Running...' : 'Run Code'}

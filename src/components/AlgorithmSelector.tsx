@@ -34,20 +34,22 @@ const AlgorithmSelector: React.FC<AlgorithmSelectorProps> = ({
 }) => {
     // State for search query and selected category
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<'all' | 'efficient' | 'simple' | 'improved' | 'unusual'>('all');
+    const [selectedCategory, setSelectedCategory] = useState<'all' | 'efficient' | 'simple' | 'improved' | 'specialized' | 'unusual'>('all');
 
     // Categorize algorithms
     const algorithmCategories = useMemo(() => {
         // Define categories based on preset IDs
-        const efficient = ['quick-sort', 'merge-sort', 'heap-sort'];
+        const efficient = ['quick-sort', 'merge-sort', 'heap-sort', 'tim-sort'];
         const simple = ['bubble-sort', 'selection-sort', 'insertion-sort'];
         const improved = ['shell-sort', 'comb-sort', 'cocktail-sort'];
-        const unusual = ['gnome-sort', 'pancake-sort', 'bogo-sort'];
+        const specialized = ['counting-sort', 'radix-sort', 'bucket-sort'];
+        const unusual = ['gnome-sort', 'pancake-sort', 'bogo-sort', 'miracle-sort', 'sleep-sort', 'quantum-bogo-sort'];
 
         return {
             efficient: presets.filter(p => efficient.includes(p.id)),
             simple: presets.filter(p => simple.includes(p.id)),
             improved: presets.filter(p => improved.includes(p.id)),
+            specialized: presets.filter(p => specialized.includes(p.id)),
             unusual: presets.filter(p => unusual.includes(p.id))
         };
     }, [presets]);
@@ -117,6 +119,7 @@ const AlgorithmSelector: React.FC<AlgorithmSelectorProps> = ({
                         { key: 'efficient', label: 'Efficient', count: algorithmCategories.efficient.length },
                         { key: 'simple', label: 'Simple', count: algorithmCategories.simple.length },
                         { key: 'improved', label: 'Improved', count: algorithmCategories.improved.length },
+                        { key: 'specialized', label: 'Specialized', count: algorithmCategories.specialized.length },
                         { key: 'unusual', label: 'Unusual', count: algorithmCategories.unusual.length }
                     ].map(({ key, label, count }) => (
                         <button
