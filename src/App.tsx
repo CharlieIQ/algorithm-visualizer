@@ -612,7 +612,7 @@ function App() {
                                                 <ul className="space-y-2 text-sm">
                                                     <li>• Improvement over bubble sort with gap sequence</li>
                                                     <li>• Eliminates "turtles" (small values at end)</li>
-                                                    <li>• Uses shrink factor of 1.3</li>
+                                                    <li>• Uses a shrink factor of 1.3</li>
                                                     <li>• Simple to implement and understand</li>
                                                 </ul>
                                             )}
@@ -629,7 +629,7 @@ function App() {
                                                     <li>• Similar to insertion sort but conceptually simpler</li>
                                                     <li>• Works like sorting a line of flower pots</li>
                                                     <li>• Only looks at one pair at a time</li>
-                                                    <li>• Easy to understand and implement</li>
+                                                    <li>• Easy to implement</li>
                                                 </ul>
                                             )}
                                             {currentAlgorithmInfo.id === 'pancake-sort' && (
@@ -637,15 +637,71 @@ function App() {
                                                     <li>• Only allowed operation is "flipping" a prefix</li>
                                                     <li>• Like flipping a stack of pancakes with a spatula</li>
                                                     <li>• Interesting theoretical problem</li>
-                                                    <li>• Not practical but educational</li>
+                                                    <li>• I'm hungry for pancakes now</li>
                                                 </ul>
                                             )}
                                             {currentAlgorithmInfo.id === 'bogo-sort' && (
                                                 <ul className="space-y-2 text-sm">
                                                     <li>• Randomly shuffles array until it becomes sorted</li>
-                                                    <li>• Worst algorithm possible - purely for fun!</li>
+                                                    <li>• Potentially 0(1) time complexity</li>
                                                     <li>• Expected time is factorial complexity</li>
-                                                    <li>• Never use this in real applications!</li>
+                                                    <li>• You should totally use this for real applications</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'tim-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Hybrid algorithm combining merge sort and insertion sort</li>
+                                                    <li>• Used in Python's sorted() and Java's Arrays.sort()</li>
+                                                    <li>• Optimized for real world data with existing order</li>
+                                                    <li>• Stable and adaptive to partially sorted data</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'counting-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Linear time algorithm for integers with limited range</li>
+                                                    <li>• Counts occurrences of each value instead of comparing</li>
+                                                    <li>• Excellent for sorting when range is not much larger than array size</li>
+                                                    <li>• Stable and not comparison-based</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'radix-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Sorts by processing individual digits from least to most significant</li>
+                                                    <li>• Uses counting sort as a subroutine for each digit</li>
+                                                    <li>• Linear time for fixed width integers</li>
+                                                    <li>• Stable and works well for multi digit numbers</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'bucket-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Distributes elements into buckets based on value ranges</li>
+                                                    <li>• Sorts each bucket individually then concatenates</li>
+                                                    <li>• Excellent for uniformly distributed data</li>
+                                                    <li>• Average linear time with good distribution</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'miracle-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Checks if array is sorted, then waits for divine intervention</li>
+                                                    <li>• Doesn't actually do much of anything</li>
+                                                    <li>• Might take a while to actually sort the array</li>
+                                                    <li>• Why does this even exist?</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'sleep-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Each element "sleeps" for time proportional to its value</li>
+                                                    <li>• Smaller values wake up first, creating sorted output</li>
+                                                    <li>• Demonstrates parallel processing concepts</li>
+                                                    <li>• Time complexity depends on data values, not array size!</li>
+                                                </ul>
+                                            )}
+                                            {currentAlgorithmInfo.id === 'quantum-bogo-sort' && (
+                                                <ul className="space-y-2 text-sm">
+                                                    <li>• Algorithm using "quantum superposition"</li>
+                                                    <li>• Claims to check all permutations simultaneously</li>
+                                                    <li>• Might work using a quantum computer</li>
+                                                    <li>• If anyone tries this on a quantum computer, let me know</li>
                                                 </ul>
                                             )}
                                         </div>
