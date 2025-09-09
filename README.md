@@ -1,6 +1,8 @@
 # Algorithm Visualizer
 *Made by [CharlieIQ](https://www.linkedin.com/in/charlie-mclaughlin-s13/)*
 
+**Website link:** [https://charlieiq.github.io/algorithm-visualizer/](https://charlieiq.github.io/algorithm-visualizer/)
+
 A React + TypeScript web app that visualizes sorting algorithms with animations, step-by-step controls, and a code editor for custom algorithms.
 
 ![Algorithm Visualizer](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Tailwind](https://img.shields.io/badge/TailwindCSS-3.3-blue) ![Vite](https://img.shields.io/badge/Vite-4-green)
