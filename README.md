@@ -1,93 +1,20 @@
 # Algorithm Visualizer
 *Made by [CharlieIQ](https://www.linkedin.com/in/charlie-mclaughlin-s13/)*
 
-A React + TypeScript web application that visualizes sorting algorithms with interactive animations, step-by-step controls, and a code editor for custom algorithms.
+A React + TypeScript web app that visualizes sorting algorithms with animations, step-by-step controls, and a code editor for custom algorithms.
 
 ![Algorithm Visualizer](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Tailwind](https://img.shields.io/badge/TailwindCSS-3.3-blue) ![Vite](https://img.shields.io/badge/Vite-4-green)
 
+
 ## Complete Algorithm Library
 
-The visualizer currently includes **12 different sorting algorithms** organized into categories:
+The site includes a wide variety of sorting algorithms, organized into categories:
 
-### Efficient Algorithms (O(n log n))
-
-1. **Quick Sort** 
-   - *Time:* O(n log n) average, O(n²) worst case
-   - *Space:* O(log n)
-   - Divide and conquer with pivot partitioning
-
-2. **Merge Sort**
-   - *Time:* O(n log n) guaranteed
-   - *Space:* O(n)
-   - Stable divide and conquer algorithm
-
-3. **Heap Sort**
-   - *Time:* O(n log n) guaranteed
-   - *Space:* O(1)
-   - Uses binary heap data structure
-
-### Simple Algorithms (O(n²))
-
-4. **Bubble Sort**
-   - *Time:* O(n²)
-   - *Space:* O(1)
-   - Compares adjacent elements and swaps
-
-5. **Selection Sort**
-   - *Time:* O(n²)
-   - *Space:* O(1)
-   - Finds minimum and places at beginning
-
-6. **Insertion Sort**
-   - *Time:* O(n²)
-   - *Space:* O(1)
-   - Builds sorted array one element at a time
-
-### Improved Simple Algorithms
-Enhanced versions of basic algorithms:
-
-7. **Shell Sort**
-   - *Time:* O(n^1.25) to O(n²)
-   - *Space:* O(1)
-   - Insertion sort with gap sequences
-
-8. **Comb Sort**
-   - *Time:* O(n²) worst, O(n log n) average
-   - *Space:* O(1)
-   - Bubble sort with shrinking gaps
-
-9. **Cocktail Sort** (Bidirectional Bubble Sort)
-   - *Time:* O(n²)
-   - *Space:* O(1)
-   - Bubble sort in both directions
-
-### Unusual/Educational Algorithms
-Interesting algorithms for learning:
-
-10. **Gnome Sort** (Stupid Sort)
-    - *Time:* O(n²)
-    - *Space:* O(1)
-    - Like insertion sort but easier
-
-11. **Pancake Sort**
-    - *Time:* O(n²)
-    - *Space:* O(1)
-    - Only allowed operation is flipping prefixes
-
-12. **Bogo Sort** (My absolute favorite most beloved algorithm)
-    - *Time:* O((n+1)!) average, O(∞) worst case
-    - *Space:* O(1)
-    - Randomly shuffles until sorted (DON'T USE THIS!)
-
-### Algorithm Features
-
-Each algorithm in the library includes:
-- **Step-by-step visualization** with color coding
-- **Detailed descriptions** explaining how it works
-- **Time and space complexity** information
-- **Complete source code** in JavaScript
-- **Educational details** about when to use each algorithm
-- **Interactive controls** to play, pause, and step through
+- **Efficient Algorithms (O(n log n))**: Fast sorts like Quick Sort, Merge Sort, Heap Sort, and Tim Sort.
+- **Simple Algorithms (O(n²))**: Classic sorts such as Bubble Sort, Selection Sort, and Insertion Sort.
+- **Improved Simple Algorithms**: Enhanced versions of basics, including Shell Sort, Comb Sort, and Cocktail Sort.
+- **Specialized Algorithms**: Non comparison sorts like Counting Sort, Radix Sort, and Bucket Sort for specific data types.
+- **Funny Algorithms**: Algorithms that I found funny like Gnome Sort, Pancake Sort, Bogo Sort, and more.
 
 ## Getting Started
 
@@ -119,7 +46,7 @@ Each algorithm in the library includes:
    Navigate to http://localhost:5173/
    ```
 
-## How to Use the Application
+## Algorithm Visualizer For Dummies
 
 ### Step 1: Understanding the Interface
 
@@ -224,30 +151,12 @@ When you first open the application, you'll see:
 5. **Close the modal** and try the algorithm with the controls
 6. **Watch step-by-step** to understand how the code translates to visual steps
 
-
-```
-src/
-├── components/              # React components
-│   ├── VisualArray.tsx         # Bar chart visualization
-│   ├── CodeEditor.tsx          # Custom code editor
-│   └── AlgorithmSelector.tsx   # Algorithm selection panel
-├── utils/
-│   └── sortingAlgorithms.ts    # Step-by-step algorithm implementations
-├── types/
-│   └── index.ts                # TypeScript type definitions
-├── data/
-│   └── presets.ts              # Algorithm presets and descriptions
-├── App.tsx                     # Main application component
-├── main.tsx                    # Application entry point
-└── index.css                   # Global styles with Tailwind
-```
-
 ## Technologies Used
 
-- **React 18**: Modern React with hooks and TypeScript
-- **TypeScript 5**: Type-safe JavaScript development
-- **Vite**: Fast build tool and development server
-- **Tailwind CSS 3.3**: Utility-first CSS framework (manually configured)
-- **Modern JavaScript**: ES6+ features and clean code practices
+- **React 18**
+- **TypeScript 5**
+- **Vite**
+- **Tailwind CSS 3.3**
+- **Modern JavaScript**
 
 *Build with love, Copilot, and lots of LeetCode practice*
