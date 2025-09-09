@@ -377,7 +377,7 @@ function App() {
                         Algorithm Visualizer
                     </h1>
                     <p className="text-dark-300">
-                        Visualize sorting algorithms with interactive animations
+                        Visualize your favorite sorting algorithms - and create your own!
                     </p>
                 </div>
 
