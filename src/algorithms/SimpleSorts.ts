@@ -199,19 +199,23 @@ export class SimpleSorts {
    * @returns Array of visualization steps
    */
   static insertionSort(arr: ArrayElement[]): SortingStep[] {
+    // Create an array to hold the visualization steps
     const steps: SortingStep[] = [];
+    // Make a copy of the original array to avoid mutating it
     const array = [...arr];
+    // Get the length of the array
     const n = array.length;
-
+    // Initial step showing the starting array
     steps.push({
       array: [...array],
       description: 'Starting Insertion Sort - Insert each element into its correct position'
     });
 
+    // Iterate through each element starting from the second one
     for (let i = 1; i < n; i++) {
       const key = array[i];
       let j = i - 1;
-
+      // Highlight the key element being inserted
       steps.push({
         array: array.map((el, idx) => ({
           ...el,
@@ -219,8 +223,9 @@ export class SimpleSorts {
         })),
         description: `Inserting ${key.value} into sorted portion`
       });
-
+      // Shift elements of the sorted portion that are greater than the key
       while (j >= 0 && array[j].value > key.value) {
+        // Highlight the elements being compared
         steps.push({
           array: array.map((el, idx) => ({
             ...el,
@@ -228,8 +233,9 @@ export class SimpleSorts {
           })),
           description: `Moving ${array[j].value} one position right`
         });
-
+        // Shift the element to the right
         array[j + 1] = array[j];
+        // Highlight the elements being shifted
         j--;
 
         steps.push({
@@ -237,8 +243,9 @@ export class SimpleSorts {
           description: `Shifted elements to make room for ${key.value}`
         });
       }
-
+      // Place the key in its correct position
       array[j + 1] = key;
+      // Highlight the insertion step
       steps.push({
         array: [...array],
         description: `Inserted ${key.value} at position ${j + 1}`
