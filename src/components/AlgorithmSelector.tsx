@@ -242,6 +242,10 @@ const AlgorithmSelector: React.FC<AlgorithmSelectorProps> = ({
                         <FiStar className="text-purple-400" size={12} />
                         <span>Unusual: {algorithmCategories.unusual.length}</span>
                     </div>
+                    <div className="flex items-center space-x-1">
+                        <FiClock className="text-green-400" size={12} />
+                        <span>Specialized: {algorithmCategories.specialized.length}</span>
+                    </div>
                 </div>
                 <div className="mt-2 text-xs text-dark-400">
                     Total: {presets.length} algorithms

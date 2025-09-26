@@ -123,6 +123,12 @@ export class EfficientSorts {
             description: 'Starting Merge Sort - Divide and conquer with merging'
         });
 
+        /**
+         * Merges two sorted subarrays into a single sorted array.
+         * @param left - Left index of the subarray
+         * @param mid - Middle index of the subarray
+         * @param right - Right index of the subarray
+         */
         function merge(left: number, mid: number, right: number): void {
             const leftArr = array.slice(left, mid + 1);
             const rightArr = array.slice(mid + 1, right + 1);
@@ -171,6 +177,11 @@ export class EfficientSorts {
             });
         }
 
+        /**
+         * Recursively sorts the array using merge sort.
+         * @param left - Left index of the subarray
+         * @param right - Right index of the subarray
+         */
         function mergeSortRecursive(left: number, right: number): void {
             if (left < right) {
                 const mid = Math.floor((left + right) / 2);
@@ -179,7 +190,7 @@ export class EfficientSorts {
                 merge(left, mid, right);
             }
         }
-
+        // Start the recursive merge sort
         mergeSortRecursive(0, array.length - 1);
 
         steps.push({

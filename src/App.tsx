@@ -51,11 +51,19 @@ function App() {
 
     /** Whether the code view modal is currently open */
     const [showCodeModal, setShowCodeModal] = useState(false);
+    /** Code content to display in the code modal */
     const [showHowToUse, setShowHowToUse] = useState(false);
+    /** Whether the algorithm info modal is currently open */
     const [showAlgorithmInfo, setShowAlgorithmInfo] = useState(false);
+    /** Current algorithm code to display in the code modal */
     const [currentAlgorithmCode, setCurrentAlgorithmCode] = useState('');
+    /** Current algorithm info to display in the info modal */
     const [currentAlgorithmInfo, setCurrentAlgorithmInfo] = useState<AlgorithmPreset | null>(null);
+    /** Description of the current step being executed */
     const [currentStepDescription, setCurrentStepDescription] = useState('');
+
+    // Default array size
+    const [defaultArraySize, setDefaultArraySize] = useState(15);
 
     // Ref to store the animation interval
     const animationIntervalRef = useRef<number | null>(null);
@@ -77,7 +85,7 @@ function App() {
     /**
      * Generates a new random array and resets the visualization state.
      */
-    const generateRandomArray = useCallback(() => {
+    const generateRandomArray = useCallback((size?: number) => {
         // Clear any running animation first
         if (animationIntervalRef.current) {
             clearInterval(animationIntervalRef.current);
@@ -85,7 +93,8 @@ function App() {
         }
 
         const newArray: ArrayElement[] = [];
-        const arraySize = 15;
+        // Use provided size or default to current defaultArraySize
+        const arraySize = size ?? defaultArraySize;
 
         for (let i = 0; i < arraySize; i++) {
             newArray.push({
@@ -100,7 +109,7 @@ function App() {
         setCurrentStepIndex(0);
         setCurrentStepDescription('');
         setIsPlaying(false);
-    }, []);
+    }, [defaultArraySize]);
 
     /**
      * Handles changes to individual array elements when edited.
@@ -391,7 +400,7 @@ function App() {
                                 <h2 className="text-xl font-semibold text-white">Array Visualization: {selectedAlgorithm ? ALGORITHM_PRESETS.find(a => a.id === selectedAlgorithm)?.algorithm.name : 'Select an Algorithm'}</h2>
                                 <div className="flex items-center space-x-2">
                                     <button
-                                        onClick={generateRandomArray}
+                                        onClick={() => generateRandomArray()}
                                         className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors duration-200 font-medium"
                                     >
                                         Generate Random
@@ -479,6 +488,27 @@ function App() {
                                         <option value={500}>Normal</option>
                                         <option value={250}>Fast</option>
                                         <option value={100}>Very Fast</option>
+                                    </select>
+                                </div>
+
+                                {/* Array size Selector element */}
+                                <div className="flex items-center space-x-2">
+                                    <label className="text-sm text-dark-300">Array Size:</label>
+                                    <select
+                                        value={defaultArraySize}
+                                        onChange={(e) => {
+                                            const newSize = Number(e.target.value);
+                                            setDefaultArraySize(newSize);
+                                            generateRandomArray(newSize);
+                                        }}
+                                        className="border border-dark-600 rounded px-2 py-1 text-sm bg-dark-700 text-white"
+                                    >
+                                        <option value={5}>5</option>
+                                        <option value={10}>10</option>
+                                        <option value={15}>15</option>
+                                        <option value={20}>20</option>
+                                        <option value={25}>25</option>
+                                        <option value={30}>30</option>
                                     </select>
                                 </div>
                             </div>
